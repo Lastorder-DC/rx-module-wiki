@@ -15,7 +15,7 @@
             if(!$this->grant->list || $this->module_info->consultation == 'Y') return $oMobile->setContent(Context::getLang('msg_not_permitted'));
 
             // Create document model
-            $oDocumentModel = &getModel('document');
+            $oDocumentModel = documentModel::getInstance();
 
             // Check if you have selected an existing document (article)
             $document_srl = Context::get('document_srl');
@@ -31,7 +31,7 @@
                     // If a comment
                     if($this->act=='dispWikiContentView') 
 					{
-                        $oCommentModel = &getModel('comment');
+                        $oCommentModel = commentModel::getInstance();
                         $output = $oCommentModel->getCommentList($oDocument->document_srl, 0, false, $oDocument->getCommentCount());
 
                         $content = '';
@@ -113,4 +113,3 @@
         }
     }
 
-?>

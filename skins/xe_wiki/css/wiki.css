@@ -4,6 +4,7 @@
 .wiki .iText,
 .wiki textarea,
 .wiki select{border:1px solid}
+.wiki .iText{box-sizing:content-box}
 .wiki label{cursor:pointer}
 .wiki img{border:0}
 .wiki .document_popup_menu,

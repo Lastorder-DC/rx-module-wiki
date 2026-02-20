@@ -71,7 +71,7 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 */
 	function documentExists($document_name) 
 	{
-		$oDocumentModel = & getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		// Search for document by alias
 		$document_srl = $oDocumentModel->getDocumentSrlByAlias($this->module_info->mid, $document_name);
 		if($document_srl)
@@ -129,11 +129,11 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 * @brief Creates tables, indexes and adds any other logic needed for module upon installation
 	 * @access public
 	 * @developer NHN (developers@xpressengine.com)
-	 * @return Object 
+	 * @return BaseObject 
 	 */
 	function moduleInstall() 
 	{
-		return new Object();
+		return new BaseObject();
 	}
 	
 	/**
@@ -144,7 +144,7 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 */
 	function checkUpdate() 
 	{
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$flag = FALSE; $flag = $this->_hasOldStyleAliases(); $oDB = DB::getInstance();
 		if(!$oDB->isIndexExists("wiki_links", "idx_link_doc_cur_doc"))
 		{
@@ -159,12 +159,12 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 * @brief Updates module
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function moduleUpdate() 
 	{
-		$oModuleModel = &getModel('module');
-		$oModuleController = &getController('module');
+		$oModuleModel = moduleModel::getInstance();
+		$oModuleController = moduleController::getInstance();
 
 		if($this->_hasOldStyleAliases())
 		{
@@ -184,34 +184,34 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 			$oModuleController->insertTrigger('menu.getModuleListInSitemap', 'wiki', 'model', 'triggerModuleListInSitemap', 'after');
 		}
 		
-		return new Object(0, 'success_updated');
+		return new BaseObject(0, 'success_updated');
 	}
 	
 	/**
 	 * @brief Uninstalls module	 
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function moduleUninstall() 
 	{
-		return new Object();
+		return new BaseObject();
 	}
 	
 	/**
 	 * @brief Deletes cache
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function recompileCache() 
 	{
-		$oCacheHandler = & CacheHandler::getInstance('object', NULL, TRUE);
+		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
 		if($oCacheHandler->isSupport()) 
 		{
 			$oCacheHandler->invalidateGroupKey("wikiContent");
 		}
-		return new Object();
+		return new BaseObject();
 	}
 	
 	/**

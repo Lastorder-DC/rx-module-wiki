@@ -16,8 +16,8 @@ class WikiAdminController extends Wiki
 	 */
 	function procWikiAdminInsertWiki($args = NULL)
 	{
-		$oModuleController = &getController('module');
-		$oModuleModel = &getModel('module');
+		$oModuleController = moduleController::getInstance();
+		$oModuleModel = moduleModel::getInstance();
 
 		$args = Context::getRequestVars();
 		$args->module = 'wiki';
@@ -51,7 +51,7 @@ class WikiAdminController extends Wiki
 			{
 				// If insert was succesful, enable document history
 				$document_config->use_history = 'Y';
-				$oModuleController = &getController('module');
+				$oModuleController = moduleController::getInstance();
 				$oModuleController->insertModulePartConfig('document', $output->get('module_srl'), $document_config);
 			}
 		}
@@ -82,7 +82,7 @@ class WikiAdminController extends Wiki
 	function procWikiAdminDeleteWiki()
 	{
 		$module_srl = Context::get('module_srl');
-		$oModuleController = &getController('module');
+		$oModuleController = moduleController::getInstance();
 		$output = $oModuleController->deleteModule($module_srl);
 		if(!$output->toBool())
 		{
@@ -105,15 +105,15 @@ class WikiAdminController extends Wiki
 	 */
 	function procWikiAdminArrangeList()
 	{
-		$oModuleModel = &getModel('module');
-		$oDocumentController = &getController('document');
+		$oModuleModel = moduleModel::getInstance();
+		$oDocumentController = documentController::getInstance();
 
 		// Verification target Wiki
 		$module_srl = Context::get('module_srl');
 		$module_info = $oModuleModel->getModuleInfoByModuleSrl($module_srl);
 		if(!$module_info->module_srl || $module_info->module != 'wiki')
 		{
-			return new Object(-1, 'msg_invalid_request');
+			return new BaseObject(-1, 'msg_invalid_request');
 		}
 		// Wiki article of the target entry has no value extraction
 		$args->module_srl = $module_srl;
@@ -121,7 +121,7 @@ class WikiAdminController extends Wiki
 
 		if(!$output->toBool() || !$output->data)
 		{
-			return new Object();
+			return new BaseObject();
 		}
 
 		foreach($output->data as $key => $val)

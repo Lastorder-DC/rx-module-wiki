@@ -25,7 +25,7 @@ class WikiAdminView extends Wiki
 		}
 
 		// Create Object Module model
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 
 		// Second module_srl come over to save the module, putting the information in advance
 		if($module_srl)
@@ -103,14 +103,14 @@ class WikiAdminView extends Wiki
 			return $this->alertMessage('msg_invalid_request');
 		}
 		// set skin list
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$skin_list = $oModuleModel->getSkins($this->module_path);
 		Context::set('skin_list', $skin_list);
 		$mskin_list = $oModuleModel->getSkins($this->module_path, "m.skins");
 		Context::set('mskin_list', $mskin_list);
 
 		// set layout list
-		$oLayoutModel = &getModel('layout');
+		$oLayoutModel = layoutModel::getInstance();
 		$layout_list = $oLayoutModel->getLayoutList();
 		Context::set('layout_list', $layout_list);
 		$mobile_layout_list = $oLayoutModel->getLayoutList(0, "M");
@@ -120,7 +120,7 @@ class WikiAdminView extends Wiki
 		Context::set('wiki_markup_list', $wiki_markup_list);
 
 		// get document status list
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$documentStatusList = $oDocumentModel->getStatusNameList();
 		Context::set('document_status_list', $documentStatusList);
 
@@ -165,7 +165,7 @@ class WikiAdminView extends Wiki
 			return $this->alertMessage('msg_invalid_request');
 		}
 		$module_info = Context::get('module_info');
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$document_count = $oDocumentModel->getDocumentCount($module_info->module_srl);
 		$module_info->document_count = $document_count;
 		Context::set('module_info', $module_info);
@@ -203,7 +203,7 @@ class WikiAdminView extends Wiki
 	function dispWikiAdminGrantInfo()
 	{
 		// Call the common page for managing grants information
-		$oModuleAdminModel = getAdminModel('module');
+		$oModuleAdminModel = moduleAdminModel::getInstance();
 		$grant_content = $oModuleAdminModel->getModuleGrantHTML($this->module_info->module_srl, $this->xml_info->grant);
 		Context::set('grant_content', $grant_content);
 		$this->setTemplateFile('grant_list');
@@ -218,7 +218,7 @@ class WikiAdminView extends Wiki
 	function dispWikiAdminSkinInfo()
 	{
 		// Call the common page for managing skin information
-		$oModuleAdminModel = & getAdminModel('module');
+		$oModuleAdminModel = moduleAdminModel::getInstance();
 		$skin_content = $oModuleAdminModel->getModuleSkinHTML($this->module_info->module_srl);
 		Context::set('skin_content', $skin_content);
 		$this->setTemplateFile('skin_info');
@@ -233,7 +233,7 @@ class WikiAdminView extends Wiki
 	function dispWikiAdminMobileSkinInfo()
 	{
 		// Call the common page for managing skin information
-		$oModuleAdminModel = & getAdminModel('module');
+		$oModuleAdminModel = moduleAdminModel::getInstance();
 		$skin_content = $oModuleAdminModel->getModuleMobileSkinHTML($this->module_info->module_srl);
 		Context::set('skin_content', $skin_content);
 		$this->setTemplateFile('skin_info');

@@ -29,7 +29,7 @@ class WikiView extends Wiki
 		}
 		$this->setTemplatePath($template_path);
 
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$document_config = $oModuleModel->getModulePartConfig('document', $this->module_info->module_srl);
 		if(!isset($document_config->use_history))
 		{
@@ -50,7 +50,7 @@ class WikiView extends Wiki
 			$editor_config->editor_skin = 'xpresseditor';
 			$editor_config->sel_editor_colorset = 'white_text_usehtml';
 			$editor_config->content_style = 'default';
-			$oModuleController = &getController('module');
+			$oModuleController = moduleController::getInstance();
 			$oModuleController->insertModulePartConfig('editor', $this->module_info->module_srl, $editor_config);
 		}
 
@@ -89,11 +89,11 @@ class WikiView extends Wiki
 	 * @brief Displays the history of the particular wiki page
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiHistory()
 	{
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$document_srl = Context::get('document_srl');
 		$page = Context::get('page');
 		$entry = Context::get('entry');
@@ -102,7 +102,7 @@ class WikiView extends Wiki
 		{
 			if(!$entry)
 			{
-				$oWikiModel = &getModel('wiki');
+				$oWikiModel = wikiModel::getInstance();
 				$root = $oWikiModel->getRootDocument($this->module_info->module_srl);
 				$document_srl = $root->document_srl;
 				$entry = $oDocumentModel->getAlias($document_srl);
@@ -140,11 +140,11 @@ class WikiView extends Wiki
 		$security = new Security();
 		$security->encodeHTML('histories..nick_name');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
     /**
-     * @return Object
+     * @return BaseObject
      */
     function dispWikiHistoryCompare()
     {
@@ -154,10 +154,10 @@ class WikiView extends Wiki
 
         if(!$old_history_srl || !$document_srl)
         {
-            return new Object(-1, 'msg_invalid_request');
+            return new BaseObject(-1, 'msg_invalid_request');
         }
 
-        $oDocumentModel = &getModel('document');
+        $oDocumentModel = documentModel::getInstance();
 
         $oDocument = $oDocumentModel->getDocument($document_srl);
         Context::set('oDocument', $oDocument);
@@ -220,14 +220,14 @@ class WikiView extends Wiki
 
         $this->setTemplateFile('document_compare');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
     }
 
 	/**
 	 * @brief Document editing screen
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiEditPage()
 	{
@@ -236,7 +236,7 @@ class WikiView extends Wiki
 			return $this->dispWikiMessage('msg_not_permitted');
 		}
 
-		$oDocumentModel = & getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$document_srl = Context::get('document_srl');
 		$entry = Context::get('entry');
 		$section = Context::get('section');
@@ -308,7 +308,7 @@ class WikiView extends Wiki
 		}
 		$this->setTemplateFile('document_edit');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
@@ -316,7 +316,7 @@ class WikiView extends Wiki
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
 	 * @param $msg_code string
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispWikiMessage($msg_code)
 	{
@@ -329,19 +329,19 @@ class WikiView extends Wiki
 		Context::set('message', $msg);
 		$this->setTemplateFile('message');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief View a list of wiki's articles
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiTitleIndex()
 	{
 		$page = Context::get('page');
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$obj->module_srl = $this->module_info->module_srl;
 		$obj->sort_index = 'update_order';
 		$obj->page = $page;
@@ -374,44 +374,44 @@ class WikiView extends Wiki
 		Context::set('search_option', $search_option);
 		$this->setTemplateFile('title_index');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief hierarchical view of the appropriate wiki
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispWikiTreeIndex()
 	{
-		$oWikiModel = &getModel('wiki');
+		$oWikiModel = wikiModel::getInstance();
 		Context::set('document_tree', $oWikiModel->readWikiTreeCache($this->module_srl));
 		$this->setTemplateFile('tree_list');
 
 		$security = new Security();
 		$security->encodeHTML('document_tree..');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief Display screen for changing the hierarchy
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiModifyTree()
 	{
 		if(!$this->grant->write_document)
 		{
-			return new Object(-1, 'msg_not_permitted');
+			return new BaseObject(-1, 'msg_not_permitted');
 		}
 
 		Context::set('isManageGranted', $this->grant->write_document ? 'true' : 'false');
 		$this->setTemplateFile('modify_tree');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
@@ -453,12 +453,12 @@ class WikiView extends Wiki
 	 * @brief Wiki document view
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiContentView()
 	{
-		$oWikiModel = &getModel('wiki');
-		$oDocumentModel = &getModel('document');
+		$oWikiModel = wikiModel::getInstance();
+		$oDocumentModel = documentModel::getInstance();
 
 		// The requested order parameter values
 		$document_srl = Context::get('document_srl');
@@ -517,7 +517,7 @@ class WikiView extends Wiki
 			else
 			{
 				Context::set('document_srl', '', TRUE);
-				return new Object(-1, 'msg_not_founded');
+				return new BaseObject(-1, 'msg_not_founded');
 			}
 		} // generate an empty document object if you do not have a document_srl for requested document
 		else
@@ -630,14 +630,14 @@ class WikiView extends Wiki
 			}
 			$this->setRedirectUrl($url);
 		}
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief Display screen for posting a comment
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispWikiReplyComment()
 	{
@@ -653,10 +653,10 @@ class WikiView extends Wiki
 		// Return message error if there is no parent_srl
 		if(!$parent_srl)
 		{
-			return new Object(-1, 'msg_invalid_request');
+			return new BaseObject(-1, 'msg_invalid_request');
 		}
 		// Look for the comment
-		$oCommentModel = &getModel('comment');
+		$oCommentModel = commentModel::getInstance();
 		$oSourceComment = $oCommentModel->getComment($parent_srl, $this->grant->manager);
 
 		// If there is no reply error
@@ -678,14 +678,14 @@ class WikiView extends Wiki
 		Context::set('oComment', $oComment);
 		$this->setTemplateFile('comment_edit');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief Modify comment page
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispWikiModifyComment()
 	{
@@ -702,10 +702,10 @@ class WikiView extends Wiki
 		// If you do not have error for specified comment
 		if(!$comment_srl)
 		{
-			return new Object(-1, 'msg_invalid_request');
+			return new BaseObject(-1, 'msg_invalid_request');
 		}
 		// Look for the comment
-		$oCommentModel = &getModel('comment');
+		$oCommentModel = commentModel::getInstance();
 		$oComment = $oCommentModel->getComment($comment_srl, $this->grant->manager);
 		// If there is no reply error
 		if(!$oComment->isExists())
@@ -724,14 +724,14 @@ class WikiView extends Wiki
 
 		$this->setTemplateFile('comment_edit');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief Delete comment form
 	 * @developer NHN (developers@xpressengine.com)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispWikiDeleteComment()
 	{
@@ -747,7 +747,7 @@ class WikiView extends Wiki
 		// If you do not have error for specified comment
 		if($comment_srl)
 		{
-			$oCommentModel = &getModel('comment');
+			$oCommentModel = commentModel::getInstance();
 			$oComment = $oCommentModel->getComment($comment_srl, $this->grant->manager);
 		}
 
@@ -766,36 +766,36 @@ class WikiView extends Wiki
 		Context::set('oComment', $oComment);
 		$this->setTemplateFile('delete_comment_form');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
 	 * @brief Add comment view - used for loading comment form via ajax
 	 * @developer Bogdan Bajanica (xe_dev@arnia.ro)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	 */
 	function dispCommentEditor()
 	{
 		// allow only logged in users to comment.
 		if(!Context::get('is_logged'))
 		{
-			return new Object(-1, 'login_to_comment');
+			return new BaseObject(-1, 'login_to_comment');
 		}
 		$document_srl = Context::get('document_srl');
 
-		$oDocumentModel = &getModel("document");
+		$oDocumentModel = documentModel::getInstance();
 		$oDocument = $oDocumentModel->getDocument($document_srl);
 		if(!$oDocument->isExists())
 		{
-			return new Object(-1, 'msg_invalid_request');
+			return new BaseObject(-1, 'msg_invalid_request');
 		}
 		if(!$oDocument->allowComment())
 		{
-			return new Object(-1, 'comments_disabled');
+			return new BaseObject(-1, 'comments_disabled');
 		}
 		Context::set('oDocument', $oDocument);
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$module_info = $oModuleModel->getModuleInfoByModuleSrl($oDocument->get('module_srl'));
 		Context::set("module_info", $module_info);
 
@@ -808,7 +808,7 @@ class WikiView extends Wiki
 		$oTemplateHandler = TemplateHandler::getInstance();
 		$this->add('html', $oTemplateHandler->compile($skin_path, 'comment_edit.html'));
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
@@ -837,7 +837,7 @@ class WikiView extends Wiki
 		$history_srl = Context::get('history_srl');
 		if($history_srl)
 		{
-			$oDocumentModel = & getModel('document'); $output = $oDocumentModel->getHistory($history_srl);
+			$oDocumentModel = documentModel::getInstance(); $output = $oDocumentModel->getHistory($history_srl);
 			if($output && $output->content != NULL)
 			{
 				Context::set('history', $output);
@@ -847,7 +847,7 @@ class WikiView extends Wiki
 		$content = $oDocument->getContent(FALSE, FALSE, FALSE, FALSE);
 		$content = $this->_renderWikiContent($oDocument->document_srl, $content);
 		// Retrieve documents that link here and that this doc links to
-		$oWikiModel = &getModel('wiki');
+		$oWikiModel = wikiModel::getInstance();
 		$inbound_links = $oWikiModel->getInboundLinks($oDocument->document_srl);
 		$outbound_links = $oWikiModel->getOutboundLinks($oDocument->document_srl);
 
@@ -886,7 +886,7 @@ class WikiView extends Wiki
 	*/
 	function _renderWikiContent($document_srl, $org_content)
 	{
-		$oCacheHandler = & CacheHandler::getInstance('object', NULL, TRUE);
+		$oCacheHandler = CacheHandler::getInstance('object', NULL, TRUE);
 		if($oCacheHandler->isSupport())
 		{
 			$object_key = sprintf('%s.%s.php', $document_srl, Context::getLangType());
@@ -918,7 +918,7 @@ class WikiView extends Wiki
 	{
 		if($document_srl)
 		{
-			$oWikiModel = &getModel('wiki');
+			$oWikiModel = wikiModel::getInstance();
 			$this->list = $oWikiModel->getMenuTree($module_srl, $document_srl, $this->module_info->mid);
 		}
 		Context::set("list", $this->list);
@@ -935,12 +935,12 @@ class WikiView extends Wiki
 	 */
 	function getLeftMenu()
 	{
-		$oWikiModel = &getModel("wiki");
-		$oDocumentModel = &getModel("document");
+		$oWikiModel = wikiModel::getInstance();
+		$oDocumentModel = documentModel::getInstance();
 		$module_srl = $this->module_info->module_srl;
 		// We need to retrieve skin info directly from module model
 		// because it wasn't yet synced with module_info (this method executes on init)
-		$oModuleModel = &getModel('module');
+		$oModuleModel = moduleModel::getInstance();
 		$skin_vars = $oModuleModel->getModuleSkinVars($module_srl);
 		if($skin_vars["menu_style"]->value == "classic")
 		{
@@ -991,7 +991,7 @@ class WikiView extends Wiki
 	function getBreadCrumbs($document_srl)
 	{
 		// get Breadcrumbs menu
-		$oWikiModel = & getModel("wiki");
+		$oWikiModel = wikiModel::getInstance();
 		$menu_breadcrumbs = $oWikiModel->getBreadcrumbs($document_srl, $this->list);
 		Context::set('breadcrumbs', $menu_breadcrumbs);
 	}
@@ -1000,13 +1000,13 @@ class WikiView extends Wiki
 	 * @brief View for displaying search results
 	 * @developer Bogdan Bajanica (xe_dev@arnia.ro)
 	 * @access public
-	 * @return Object
+	 * @return BaseObject
 	*/
 	function dispWikiSearchResults()
 	{
-		$oWikiModel = &getModel('wiki');
-		$oDocumentModel = &getModel('document');
-		$oModuleModel = &getModel('module');
+		$oWikiModel = wikiModel::getInstance();
+		$oDocumentModel = documentModel::getInstance();
+		$oModuleModel = moduleModel::getInstance();
 
 		$moduleList = $oWikiModel->getModuleList(TRUE);
 		$moduleList = $this->_sortArrayByKeyDesc($moduleList, 'search_rank');
@@ -1017,7 +1017,7 @@ class WikiView extends Wiki
 
 		$this->setTemplateFile('document_search');
 
-		return new Object(0, 'success');
+		return new BaseObject(0, 'success');
 	}
 
 	/**
@@ -1101,9 +1101,9 @@ class WikiView extends Wiki
 				$search_target = 'tags';
 			}
 		}
-		$oWikiModel = &getModel('wiki');
-		$oModuleModel = &getModel('module');
-		$oDocumentModel = &getModel('document');
+		$oWikiModel = wikiModel::getInstance();
+		$oModuleModel = moduleModel::getInstance();
+		$oDocumentModel = documentModel::getInstance();
 
 		$output = $oWikiModel->search($is_keyword, $target_mid, $search_target, $page, 10);
 		if($output->data)
@@ -1132,7 +1132,7 @@ class WikiView extends Wiki
 	  */
 	function _getStatusNameList()
 	{
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$resultList = array();
 		if(!empty($this->module_info->use_status))
 		{

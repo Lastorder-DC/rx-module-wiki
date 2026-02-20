@@ -5,7 +5,7 @@
 	* @brief  wiki 모듈의 Model class
 	**/
 
-	class WikiModel extends module {
+	class WikiModel extends Wiki {
 		/**
 		* @brief Initialization
 		**/
@@ -19,7 +19,7 @@
 		* document_category테이블에 등록되어 있지 않은 경우 depth = 0 으로 하여 신규 생성
 		**/
 		function getWikiTreeList() {
-			$oWikiController = &getController('wiki');
+			$oWikiController = wikiController::getInstance();
 
 			header("Content-Type: text/xml; charset=UTF-8");
 			header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
@@ -28,7 +28,7 @@
 			header("Cache-Control: post-check=0, pre-check=0", false);
 			header("Pragma: no-cache");
 
-			if(!$this->module_srl) return new Object(-1,'msg_invalid_request');
+			if(!$this->module_srl) return new BaseObject(-1,'msg_invalid_request');
 
 			$xml_file = sprintf('%sfiles/cache/wiki/%d.xml', _XE_PATH_,$this->module_srl);
 			if(!file_exists($xml_file)) $oWikiController->loadWikiTreeList($this->module_srl);
@@ -43,8 +43,8 @@
 		*/
 		function readWikiTreeCache($module_srl) {
 		    	
-			$oWikiController = &getController('wiki');
-			if(!$module_srl) return new Object(-1,'msg_invalid_request');
+			$oWikiController = wikiController::getInstance();
+			if(!$module_srl) return new BaseObject(-1,'msg_invalid_request');
 
 			$dat_file = sprintf('%sfiles/cache/wiki/%d.dat', _XE_PATH_,$module_srl);
 			if(!file_exists($dat_file)) $oWikiController->recompileTree($module_srl);
@@ -207,7 +207,7 @@
 		}
 
 		function getContributors($document_srl) {
-			$oDocumentModel = &getModel('document');
+			$oDocumentModel = documentModel::getInstance();
 			$oDocument = $oDocumentModel->getDocument($document_srl);
 			if(!$oDocument->isExists()) return array();
 
@@ -256,7 +256,7 @@
 				$documents_tree[$node_srl_iterator]->type = 'active_root';
 				$node_srl_iterator = $documents_tree[$node_srl_iterator]->parent_srl;
 			}
-			$oDocumentModel = &getModel("document");
+			$oDocumentModel = documentModel::getInstance();
 			
 			$documents_tree_copy = $documents_tree;
 			foreach($documents_tree_copy as $key => $value){
@@ -288,7 +288,7 @@
 		*/
 		function createBreadcrumbsList($document_srl, $list, $list_breadcrumbs = array())
 		{
-			$oDocumentModel = &getModel("document");
+			$oDocumentModel = documentModel::getInstance();
 			
 			if ((int)$list[$document_srl]->parent_srl > 0)
 			{
@@ -311,8 +311,8 @@
 			$breadcrumbs = array_reverse($this->createBreadcrumbsList($document_srl, $list));
 			$uri = Context::getRequestUri().Context::get("mid")."/";
 			//$menu_breadcrumbs = "<a href='" . $uri . "'>Front Page</a>";
-			$oModuleModel = &getModel("module");
-			$oDocumentModel = &getModel("document");
+			$oModuleModel = moduleModel::getInstance();
+			$oDocumentModel = documentModel::getInstance();
 			$module_srl = $oModuleModel->getModuleSrlByMid(Context::get("mid"));
 			$root = $this->getRootDocument($module_srl[0]);
 			$document_srl = $root->document_srl;
@@ -359,7 +359,7 @@
                     return  $output->data;
             }
 
-            $oModuleModel = &getModel('module');
+            $oModuleModel = moduleModel::getInstance();
 			
 			if($output->data)
             foreach($output->data as $module_info){
@@ -377,7 +377,7 @@
 		*/
         function search($is_keyword, $target_module_srl, $search_target, $page, $items_per_page= 10)
         {
-            $oLuceneModule = &getModule('lucene');
+            $oLuceneModule = ModuleHandler::getModuleInstance('lucene', 'view');
 
             if( !isset($oLuceneModule) ){
                     //if nlucene not installed we fallback to IS (integrated search module)
@@ -394,7 +394,7 @@
 		*/
         function _lucene_search($is_keyword, $target_module_srl, $search_target, $page, $items_per_page= 10 )
         {
-            $oLuceneModel = &getModel('wiki'); //temporary imported sources so we not interfere with nlucene
+            $oLuceneModel = wikiModel::getInstance(); //temporary imported sources so we not interfere with nlucene
 
             $searchAPI = "lucene_search_bloc-1.0/SearchBO/";
             $searchUrl = $oLuceneModel->getDefaultSearchUrl($searchAPI);
@@ -429,7 +429,7 @@
 			if( !isset($service_prefix) ){
 					$service_prefix = $this->getDefaultServicePrefix();
 			}
-            $oModelDocument = &getModel('document');
+            $oModelDocument = documentModel::getInstance();
 
             $params->serviceName = $service_prefix.'_document';
             $params->query = '('.$params->query.')'.$params->subquery;
@@ -492,7 +492,7 @@
 		
 		function getDefaultSearchUrl($searchAPI)
         {
-            $oModuleModel = &getModel('module');
+            $oModuleModel = moduleModel::getInstance();
             $config = $oModuleModel->getModuleConfig('lucene');
             syslog(1, "lucene config: ".print_r($config, true)."\n");
             return $searchUrl = $config->searchUrl.$searchAPI;
@@ -541,7 +541,7 @@
 		*/
         function _is_search($is_keyword, $target_module_srl, $search_target, $page, $items_per_page= 10)
         {
-            $oDocumentModel = &getModel('document');
+            $oDocumentModel = documentModel::getInstance();
 
             $obj = null;
             $obj->module_srl = array($target_module_srl);
@@ -584,7 +584,7 @@
 		}
 
 		function getDefaultServicePrefix(){
-			$oModuleModel = &getModel('module');
+			$oModuleModel = moduleModel::getInstance();
 			$config = $oModuleModel->getModuleConfig('lucene');
 			return $config->service_name_prefix;
 		}
@@ -605,4 +605,4 @@
 		}
 
 	}
-?>
+

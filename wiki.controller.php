@@ -15,14 +15,14 @@ class WikiController extends Wiki
 	function procWikiInsertDocument() 
 	{
 		// Create object model of document module
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		// Create object controller of document module
-		$oDocumentController = &getController('document');
+		$oDocumentController = documentController::getInstance();
 		
 		// Check permissions
 		if(!$this->grant->write_document) 
 		{
-			return new Object(-1, 'msg_not_permitted'); 
+			return new BaseObject(-1, 'msg_not_permitted'); 
 		}
 		
 		$entry = Context::get('entry');
@@ -113,7 +113,7 @@ class WikiController extends Wiki
 				// Update linked docs
 				if(count($linked_documents_aliases) > 0) 
 				{
-					$oWikiController = &getController('wiki'); 
+					$oWikiController = wikiController::getInstance(); 
 					$oWikiController->updateLinkedDocuments($obj->document_srl, $linked_documents_aliases, $obj->module_srl);
 				}
 			}
@@ -144,7 +144,7 @@ class WikiController extends Wiki
 			// Insert linked docs
 			if(count($linked_documents_aliases) > 0) 
 			{
-				$oWikiController = &getController('wiki'); 
+				$oWikiController = wikiController::getInstance(); 
 				$oWikiController->insertLinkedDocuments($obj->document_srl, $linked_documents_aliases, $obj->module_srl);
 			}
 		}
@@ -223,7 +223,7 @@ class WikiController extends Wiki
 		
 		$previous_doc_edit = Context::get('latest_doc_edit');
 		
-		$oDocumentModel = &getModel('document');
+		$oDocumentModel = documentModel::getInstance();
 		$output = $oDocumentModel->getHistories($document_srl, 1, 1);
 		if($output->toBool() && $output->data) // If we did find previous edits
 		{
@@ -316,23 +316,23 @@ class WikiController extends Wiki
 		// Check permissions
 		if(!$this->grant->write_comment) 
 		{
-			return new Object(-1, 'msg_not_permitted');
+			return new BaseObject(-1, 'msg_not_permitted');
 		}
 		
 		// extract data required
 		$obj = Context::gets('document_srl', 'comment_srl', 'parent_srl', 'content', 'password', 'nick_name', 'nick_name', 'member_srl', 'email_address', 'homepage', 'is_secret', 'notify_message');
 		$obj->module_srl = $this->module_srl;
 		// Check for the presence of document object
-		$oDocumentModel = &getModel('document'); 
+		$oDocumentModel = documentModel::getInstance(); 
 		$oDocument = $oDocumentModel->getDocument($obj->document_srl);
 		if(!$oDocument->isExists()) 
 		{
-			return new Object(-1, 'msg_not_permitted');
+			return new BaseObject(-1, 'msg_not_permitted');
 		}
 		// Create object model of document module
-		$oCommentModel = &getModel('comment');
+		$oCommentModel = commentModel::getInstance();
 		// Create object controller of document module
-		$oCommentController = &getController('comment');
+		$oCommentController = commentController::getInstance();
 		
 		// Check for the presence of comment_srl
 		// if comment_srl is n/a then retrieves a value with getNextSequence()
@@ -354,7 +354,7 @@ class WikiController extends Wiki
 				$parent_comment = $oCommentModel->getComment($obj->parent_srl);
 				if(!$parent_comment->comment_srl) 
 				{
-					return new Object(-1, 'msg_invalid_request');
+					return new BaseObject(-1, 'msg_invalid_request');
 				}
 				$output = $oCommentController->insertComment($obj);
 			}
@@ -365,7 +365,7 @@ class WikiController extends Wiki
 			if($output->toBool()) 
 			{
 				//check if comment writer is admin or not
-				$oMemberModel = &getModel("member");
+				$oMemberModel = memberModel::getInstance();
 				if(isset($obj->member_srl) && !is_null($obj->member_srl)) 
 				{
 					$member_info = $oMemberModel->getMemberInfoByMemberSrl($obj->member_srl);
@@ -412,25 +412,25 @@ class WikiController extends Wiki
 	 */
 	function procWikiDeleteDocument() 
 	{
-		$oDocumentController = &getController('document'); 
-		$oDocumentModel = &getModel('document');
+		$oDocumentController = documentController::getInstance(); 
+		$oDocumentModel = documentModel::getInstance();
 		
 		// Check permissions
 		if(!$this->grant->delete_document) 
 		{
-			return new Object(-1, 'msg_not_permitted'); 
+			return new BaseObject(-1, 'msg_not_permitted'); 
 		}
 		
 		$document_srl = Context::get('document_srl');
 		if(!$document_srl) 
 		{
-			return new Object(-1, 'msg_invalid_request'); 
+			return new BaseObject(-1, 'msg_invalid_request'); 
 		}
 		
 		$oDocument = $oDocumentModel->getDocument($document_srl);
 		if(!$oDocument || !$oDocument->isExists()) 
 		{
-			return new Object(-1, 'msg_invalid_request');
+			return new BaseObject(-1, 'msg_invalid_request');
 		}
 		
 		$output = $oDocumentController->deleteDocument($oDocument->document_srl);
@@ -471,7 +471,7 @@ class WikiController extends Wiki
 			return $this->doError('msg_invalid_request');
 		}
 		// create controller object of comment module
-		$oCommentController = &getController('comment'); 
+		$oCommentController = commentController::getInstance(); 
 		$output = $oCommentController->deleteComment($comment_srl, $this->grant->manager);
 		if(!$output->toBool()) 
 		{
@@ -496,7 +496,7 @@ class WikiController extends Wiki
 		// Check permissions
 		if(!$this->grant->write_document)
 		{
-			return new Object(-1, 'msg_not_permitted');
+			return new BaseObject(-1, 'msg_not_permitted');
 		}
 		
 		// request arguments
@@ -506,7 +506,7 @@ class WikiController extends Wiki
 		$node = $output->data;
 		if(!$node->document_srl) 
 		{
-			return new Object('msg_invalid_request'); 
+			return new BaseObject('msg_invalid_request'); 
 		}
 		$args->module_srl = $node->module_srl; 
 		$args->title = $node->title;
@@ -591,7 +591,7 @@ class WikiController extends Wiki
 	{
 		if(!$this->grant->write_document) 
 		{
-			return new Object(-1, 'msg_not_permitted'); 
+			return new BaseObject(-1, 'msg_not_permitted'); 
 		}
 		return $this->recompileTree($this->module_srl);
 	}
@@ -605,7 +605,7 @@ class WikiController extends Wiki
 	 */	
 	function recompileTree($module_srl) 
 	{
-		$oWikiModel = &getModel('wiki'); 
+		$oWikiModel = wikiModel::getInstance(); 
 		$list = $oWikiModel->loadWikiTreeList($module_srl); 
 		$dat_file = sprintf('%sfiles/cache/wiki/%d.dat', _XE_PATH_, $module_srl); 
 		$xml_file = sprintf('%sfiles/cache/wiki/%d.xml', _XE_PATH_, $module_srl); 
@@ -621,7 +621,7 @@ class WikiController extends Wiki
 		
 		FileHandler::writeFile($dat_file, $buff); 
 		FileHandler::writeFile($xml_file, $xml_buff); 
-		return new Object();
+		return new BaseObject();
 	}
 	
 	/**
@@ -636,28 +636,28 @@ class WikiController extends Wiki
 		$document_srl = Context::get('document_srl');
 		$comment_srl = Context::get('comment_srl'); 
 		
-		$oMemberModel = &getModel('member');
+		$oMemberModel = memberModel::getInstance();
 		if($comment_srl) 
 		{
-			$oCommentModel = &getModel('comment'); 
+			$oCommentModel = commentModel::getInstance(); 
 			$oComment = $oCommentModel->getComment($comment_srl);
 			if(!$oComment->isExists()) 
 			{
-				return new Object(-1, 'msg_invalid_request');
+				return new BaseObject(-1, 'msg_invalid_request');
 			}
 			if(!$oMemberModel->isValidPassword($oComment->get('password'), $password)) 
 			{
-					return new Object(-1, 'msg_invalid_password'); 
+					return new BaseObject(-1, 'msg_invalid_password'); 
 			}
 			$oComment->setGrant();
 		} else {
 			// get the document information
-			$oDocumentModel = &getModel('document');
+			$oDocumentModel = documentModel::getInstance();
 			$oDocument = $oDocumentModel->getDocument($document_srl);
-			if(!$oDocument->isExists()) return new Object(-1, 'msg_invalid_request');
+			if(!$oDocument->isExists()) return new BaseObject(-1, 'msg_invalid_request');
 
 			// compare the document password and the user input password
-			if(!$oMemberModel->isValidPassword($oDocument->get('password'),$password)) return new Object(-1, 'msg_invalid_password');
+			if(!$oMemberModel->isValidPassword($oDocument->get('password'),$password)) return new BaseObject(-1, 'msg_invalid_password');
 
 			$oDocument->setGrant();
 
@@ -677,7 +677,7 @@ class WikiController extends Wiki
 	{
 		$document_srl = Context::get("document_srl"); 
 		$history_srl = Context::get("history_srl"); 
-		$oDocumentModel = &getModel('document'); 
+		$oDocumentModel = documentModel::getInstance(); 
 		$oDocument = $oDocumentModel->getDocument($document_srl); 
 		$current_content = $oDocument->get('content'); 
 		$history = $oDocumentModel->getHistory($history_srl);
@@ -695,10 +695,10 @@ class WikiController extends Wiki
 	function procDispCommentEditor() 
 	{
 		$document_srl = Context::get("document_srl"); 
-		$oDocumentModel = &getModel('document'); 
+		$oDocumentModel = documentModel::getInstance(); 
 		$oDocument = $oDocumentModel->getDocument($document_srl); 
 		$editor = $oDocument->getCommentEditor(); 
-		$oEditorModel = &getModel('editor');
+		$oEditorModel = editorModel::getInstance();
 		
 		// get an editor
 		$option->primary_key_name = 'comment_srl'; 

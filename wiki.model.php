@@ -377,7 +377,7 @@
 		*/
         function search($is_keyword, $target_module_srl, $search_target, $page, $items_per_page= 10)
         {
-            $oLuceneModule = luceneView::getInstance();
+            $oLuceneModule = ModuleHandler::getModuleInstance('lucene', 'view');
 
             if( !isset($oLuceneModule) ){
                     //if nlucene not installed we fallback to IS (integrated search module)

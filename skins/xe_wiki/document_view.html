@@ -1,5 +1,4 @@
 <include target="header.html" />
-<!--@if($module_info->markup_type != 'xe_wiki_markup')-->
 	<load target="../../lib/google-code-prettify/prettify.css" />
 	<load target="../../lib/google-code-prettify/prettify.js" />
 	<script>
@@ -7,7 +6,6 @@
 			prettyPrint();
 		});
 	</script>
-<!--@end-->
 <div class="wikiRead">
 	<div class="wkReadBody">
 		<!--@if($oDocument->isSecret() && !$oDocument->isGranted())-->

@@ -87,8 +87,6 @@ class WikiController extends Wiki
 
                 $lang = $this->module_info->markup_type;
                 if ($lang == 'mediawiki_markup') $lang = 'wikitext';
-                elseif ($lang == 'googlecode_markup') $lang = 'googlecode';
-                elseif ($lang == 'xe_wiki_markup') $lang = 'xewiki';
                 $wt = new WTParser($full_content, $lang);
 				$wt->setText($section_content, (int)$section);
 				$new_content = $wt->getText();

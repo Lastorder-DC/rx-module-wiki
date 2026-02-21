@@ -42,10 +42,9 @@ class WikiView extends Wiki
 		Context::set('grant', $this->grant);
 		Context::set('langs', Context::loadLangSupported());
 
-		// Force simple textarea if markup is Markdown, Google Code or MediaWiki
+		// Force simple textarea if markup is Markdown or MediaWiki
 		$editor_config = $oModuleModel->getModulePartConfig('editor', $this->module_info->module_srl);
-		if($this->module_info->markup_type != 'xe_wiki_markup'
-				&& (!$editor_config || $editor_config->sel_editor_colorset != 'white_text_usehtml'))
+		if(!$editor_config || $editor_config->sel_editor_colorset != 'white_text_usehtml')
 		{
 			$editor_config->editor_skin = 'xpresseditor';
 			$editor_config->sel_editor_colorset = 'white_text_usehtml';
@@ -274,9 +273,7 @@ class WikiView extends Wiki
 				$content = $oDocument->get('content');
                 $lang = $this->module_info->markup_type;
                 if ($lang == 'mediawiki_markup') $lang = 'wikitext';
-                elseif ($lang == 'googlecode_markup') $lang = 'googlecode';
                 //markdown stays markdown
-                elseif ($lang == 'xe_wiki_markup') $lang = 'xewiki';
                 $wt = new WTParser($content, $lang);
 				$paragraph = $wt->getText((int)$section);
                 $oDocument->add('content', $paragraph);

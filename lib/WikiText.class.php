@@ -48,7 +48,7 @@ class WTParser
 
     function WTParser($text, $mode='wikitext', $wiki_site=null)
     {
-        if (!in_array($mode, array('wikitext', 'markdown', 'googlecode', 'xewiki'))) return false;
+        if (!in_array($mode, array('wikitext', 'markdown'))) return false;
         $this->mode = $mode;
         $this->setText($text);
         $this->wiki_site = $wiki_site;
@@ -169,6 +169,7 @@ class WTParser
                     require_once ('markdown.php');
                     $p = Markdown($p);
                     $p = $this->markDownParseLinks($p);
+                    $p = $this->parseWikiLinks($p);
                 }
                 $text .= $p;
             }
@@ -228,7 +229,6 @@ class WTParser
     function split($text)
     {
         if ($this->mode == 'markdown') return $this->splitMarkdown($text);
-        elseif ($this->mode == 'xewiki') return $this->splitXeWiki($text);
 		$regex = '/^[\s?]*(={1,6})(.+?)\1[\s?]*$/m';
         $paragraphs = preg_split($regex, $text, -1, PREG_SPLIT_OFFSET_CAPTURE | PREG_SPLIT_DELIM_CAPTURE);
         $nodes = array();
@@ -433,6 +433,65 @@ class WTParser
         $full_url = $this->wiki_site->getFullLink($url);
         $description = $matches[3];
         return "<a href=$full_url class='notexist'>" . $description . "</a>";
+    }
+
+    /**
+     * Parses wiki-style internal links [text] and [[text]] in Markdown mode
+     * Handles links that were not converted by the Markdown parser
+     * @param string $text HTML text after Markdown processing
+     * @return string
+     */
+    function parseWikiLinks($text)
+    {
+        if (!$this->wiki_site) return $text;
+        // First handle [[text]] double bracket links
+        $text = preg_replace_callback('/\[\[([^\]]+)\]\]/', array($this, '_handle_wiki_link'), $text);
+        // Then handle [text] single bracket links that are not inside HTML tags
+        $text = preg_replace_callback('/(?<![<\[])(?<!="|=\')\[([^\[\]]+)\](?![>\]])/', array($this, '_handle_wiki_link'), $text);
+        return $text;
+    }
+
+    /**
+     * Callback for wiki link parsing
+     * @param array $matches
+     * @return string
+     */
+    function _handle_wiki_link($matches)
+    {
+        $content = trim($matches[1]);
+        // Split by | for description: [page|description]
+        $parts = explode('|', $content, 2);
+        $page_name = trim($parts[0]);
+        $description = isset($parts[1]) ? trim($parts[1]) : $page_name;
+
+        // Skip external URLs
+        if (preg_match('/^(https?|ftp|file):\/\//', $page_name))
+        {
+            return $matches[0];
+        }
+
+        // Skip if it looks like it's already inside an HTML tag
+        if (preg_match('/^[\/]/', $page_name))
+        {
+            return $matches[0];
+        }
+
+        // Check if document exists
+        if ($alias = $this->wiki_site->documentExists($page_name))
+        {
+            $full_url = $this->wiki_site->getFullLink($alias);
+            return "<a href=\"$full_url\" class=\"exist\">$description</a>";
+        }
+
+        // Document does not exist
+        if (!$this->wiki_site->currentUserCanCreateContent())
+        {
+            return $description;
+        }
+
+        // Return link to create new page
+        $full_url = $this->wiki_site->getFullLink($page_name);
+        return "<a href=\"$full_url\" class=\"notexist\">$description</a>";
     }
 
     /**

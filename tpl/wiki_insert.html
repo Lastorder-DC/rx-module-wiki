@@ -6,7 +6,6 @@
 	<input type="hidden" name="module_srl" value="{$module_info->module_srl}" />
 	<input type="hidden" name="act" value="procWikiAdminInsertWiki" />
 	<input type="hidden" name="module" value="wiki" />
-	<input type="hidden" name="markup_type" value="{$module_info->markup_type}" cond="$module_info->module_srl" />
     <input type="hidden" name="success_return_url" value="{getUrl('act','dispWikiAdminInsertWiki', 'module_srl', $module_info->module_srl)}" cond="$module_info->module_srl" />
     <input type="hidden" name="success_return_url" value="{getUrl('act','dispWikiAdminContent')}" cond="!$module_info->module_srl" />
 	<input type="hidden" name="mid" value="{$module_info->mid}" cond="$logged_info->is_admin!='Y'" />
@@ -62,7 +61,7 @@
 	<div class="x_control-group">
 		<label for="markup_type" class="x_control-label">{$lang->markup_type}</label>
 		<div class="x_controls">
-			<select name="markup_type" id="markup_type" disabled="disabled"|cond="$module_info->module_srl">
+			<select name="markup_type" id="markup_type">
 				<option loop="$wiki_markup_list=>$markup" value="{$markup}" selected="selected"|cond="$module_info->markup_type==$markup"><!--@ echo $lang->{$markup}; --><!--@end--></option>
 			</select>
 			<a href="#about_markup_type" class="x_icon-question-sign" data-toggle>{$lang->help}</a>

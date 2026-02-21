@@ -18,18 +18,6 @@
 		}).trigger('keyup');
 	});
 </script>
-<!--@elseif ($module_info->markup_type == 'googlecode_markup')-->
-<script src="../../lib/js/GoogleCodeWikiParser.js"></script>
-<script>
-    jQuery(function($) {
-        setInterval(function() {
-            var wikitext = editorGetContent( jQuery('form[editor_sequence]').attr('editor_sequence') );
-            var g = new GoogleCodeWikiParser();
-            var html = g.parse( wikitext );
-            jQuery('#wikiDocumentPreview').html(html);
-        }, 500);
-    });
-</script>
 <!--@elseif ($module_info->markup_type == 'mediawiki_markup')-->
 <script>
 //ajax:
@@ -143,26 +131,20 @@ jQuery(function($) {
 			{$oDocument->getEditor()}
 		</div>
 		
-		<!--@if($module_info->markup_type != 'xe_wiki_markup')-->
 		<a href="#" id="toggleWikiHelp">{$lang->wiki_language_help}</a>
 		<div id="wikiHelp" class="hide" title="Click to hide">
 			<!--@if($module_info->markup_type == 'markdown')-->
 				{nl2br($lang->markdown_help)}
-			<!--@elseif($module_info->markup_type == 'googlecode_markup')-->
-				{nl2br($lang->googlecode_markup_help)}
 			<!--@elseif($module_info->markup_type == 'mediawiki_markup')-->
 				{nl2br($lang->mediawiki_markup_help)}
 			<!--@end-->
 		</div>
-		<!--@end-->
 	
 		<div class="wkNav">
 			<input class="btn" type="submit" value="{$lang->cmd_registration}" />
 		</div>
 		
-		<!--@if($module_info->markup_type != 'xe_wiki_markup')-->
 		<div id="wikiDocumentPreview"></div>
-		<!--@end-->
 	
 		<br /><br />
 		<!--@if(!$is_logged)-->

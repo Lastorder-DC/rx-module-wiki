@@ -19,27 +19,13 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 */
 	function getWikiTextParser() 
 	{
-		if($this->module_info->markup_type == 'markdown') 
+		if($this->module_info->markup_type == 'mediawiki_markup') 
 		{
-			require_once ($this->module_path . "lib/MarkdownParser.class.php"); $wiki_syntax_parser = new MarkdownParser($this);
+			require_once ($this->module_path . "lib/MediaWikiParser.class.php"); $wiki_syntax_parser = new MediaWikiParser($this);
 		}
 		else 
 		{
-			if($this->module_info->markup_type == 'googlecode_markup') 
-			{
-				require_once ($this->module_path . "lib/GoogleCodeWikiParser.class.php"); $wiki_syntax_parser = new GoogleCodeWikiParser($this);
-			}
-			else 
-			{
-				if($this->module_info->markup_type == 'mediawiki_markup') 
-				{
-					require_once ($this->module_path . "lib/MediaWikiParser.class.php"); $wiki_syntax_parser = new MediaWikiParser($this);
-				}
-				else 
-				{
-					require_once ($this->module_path . "lib/XEWikiParser.class.php"); $wiki_syntax_parser = new XEWikiParser($this);
-				}
-			}
+			require_once ($this->module_path . "lib/MarkdownParser.class.php"); $wiki_syntax_parser = new MarkdownParser($this);
 		}
 		return $wiki_syntax_parser;
 	}
@@ -108,7 +94,9 @@ class Wiki extends ModuleObject /* implements WikiSite // Commented for backward
 	 */
 	function getFullLink($document_name) 
 	{
-		return getUrl('', 'mid', $this->module_info->mid, 'entry', $document_name, 'document_srl', '');
+		$url = getUrl('', 'mid', $this->module_info->mid, 'entry', $document_name, 'document_srl', '');
+		$url = preg_replace('#^//+#', '/', $url);
+		return $url;
 	}
 
 	/**
